@@ -42,7 +42,7 @@ export const ConnectionProvider = ({
   const { pgState, dispatch } = useAgentState();
 
   const connect = async () => {
-    const response = await fetch("http://localhost:3001/token", {
+    const response = await fetch("/api/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
