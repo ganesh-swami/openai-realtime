@@ -1,4 +1,4 @@
-http://ai.micro-mvp.com/ {
+ai.micro-mvp.com {
         handle /agent/* {
                 reverse_proxy localhost:8001
         }
