@@ -30,7 +30,8 @@ const AgentContext = createContext<AgentContextType | undefined>(undefined);
 export function AgentProvider({ children }: { children: React.ReactNode }) {
   const room = useMaybeRoomContext();
   const { shouldConnect } = useConnection();
-  const { agent } = useVoiceAssistant();
+  const voiceAssistant = useVoiceAssistant();
+  const { agent } = voiceAssistant;
   const { localParticipant } = useLocalParticipant();
   const [rawSegments, setRawSegments] = useState<{
     [id: string]: Transcription;
@@ -41,13 +42,17 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("voiceAssistant", voiceAssistant);
+  }, [voiceAssistant]);
+
+  useEffect(() => {
     if (!room) {
       return;
     }
     const updateRawSegments = (
       segments: TranscriptionSegment[],
       participant?: Participant,
-      publication?: TrackPublication,
+      publication?: TrackPublication
     ) => {
       setRawSegments((prev) => {
         const newSegments = { ...prev };
@@ -77,7 +82,7 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
             variant,
           });
           return JSON.stringify({ shown: true });
-        },
+        }
       );
     }
   }, [localParticipant, toast]);
@@ -85,7 +90,7 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const sorted = Object.values(rawSegments).sort(
       (a, b) =>
-        (a.segment.firstReceivedTime ?? 0) - (b.segment.firstReceivedTime ?? 0),
+        (a.segment.firstReceivedTime ?? 0) - (b.segment.firstReceivedTime ?? 0)
     );
     const mergedSorted = sorted.reduce((acc, current) => {
       if (acc.length === 0) {

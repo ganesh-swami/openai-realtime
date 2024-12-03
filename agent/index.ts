@@ -9,7 +9,7 @@ import * as openai from "@livekit/agents-plugin-openai";
 import type { Participant } from "@livekit/rtc-node";
 import { RemoteParticipant, type RpcInvocationData } from "@livekit/rtc-node";
 import { fileURLToPath } from "node:url";
-import 'dotenv/config'
+import "dotenv/config";
 
 const apiKey = process.env.WEBRTC_API_KEY;
 const apiSecret = process.env.WEBRTC_API_SECRET;
@@ -17,7 +17,11 @@ const livekitHost = process.env.WEBRTC_URL;
 const openAIAPIKey = process.env.OPEN_AI_API_KEY;
 if (!apiKey || !apiSecret) {
   throw new Error("WEBRTC_API_KEY and WEBRTC_API_SECRET must be set");
-};
+}
+
+console.log("livekitHost::", livekitHost);
+console.log("openAIAPIKey::", openAIAPIKey);
+console.log("apiSecret::", apiSecret);
 
 function safeLogConfig(config: SessionConfig): string {
   const safeConfig = { ...config, openaiApiKey: "[REDACTED]" };
@@ -87,7 +91,7 @@ function configEqual(obj1: SessionConfig, obj2: SessionConfig): boolean {
 }
 
 function modalitiesFromString(
-  modalities: string,
+  modalities: string
 ): ["text", "audio"] | ["text"] {
   const modalitiesMap: { [key: string]: ["text", "audio"] | ["text"] } = {
     text_and_audio: ["text", "audio"],
@@ -101,7 +105,7 @@ async function showToast(
   participant: Participant,
   title: string,
   description: string | undefined,
-  variant: "success" | "warning" | "destructive" | "default",
+  variant: "success" | "warning" | "destructive" | "default"
 ) {
   await ctx.room.localParticipant?.performRpc({
     destinationIdentity: participant.identity,
@@ -112,13 +116,13 @@ async function showToast(
 
 async function runMultimodalAgent(
   ctx: JobContext,
-  participant: RemoteParticipant,
+  participant: RemoteParticipant
 ) {
   const metadata = JSON.parse(participant.metadata);
   const config = parseSessionConfig(metadata);
   let lastConfig = config;
   console.log(
-    `starting multimodal agent with config: ${safeLogConfig(config)}`,
+    `starting multimodal agent with config: ${safeLogConfig(config)}`
   );
 
   const model = new openai.realtime.RealtimeModel({
@@ -131,14 +135,17 @@ async function runMultimodalAgent(
     turnDetection: config.turnDetection,
   });
 
+  console.log("model", model);
+
   const agent = new multimodal.MultimodalAgent({ model });
   const session = (await agent.start(
-    ctx.room,
+    ctx.room
   )) as openai.realtime.RealtimeSession;
 
-  let inputText ="Please begin the interaction with the user in a manner consistent with your instructions.";
-  if(metadata.historyMsg && metadata.historyMsg!==""){
-    inputText = metadata.historyMsg + " "+inputText;
+  let inputText =
+    "Please begin the interaction with the user in a manner consistent with your instructions.";
+  if (metadata.historyMsg && metadata.historyMsg !== "") {
+    inputText = metadata.historyMsg + " " + inputText;
   }
 
   session.conversation.item.create({
@@ -148,7 +155,7 @@ async function runMultimodalAgent(
       {
         type: "input_text",
         text: inputText,
-      }
+      },
     ],
   });
   session.response.create();
@@ -159,7 +166,7 @@ async function runMultimodalAgent(
       const newConfig = parseSessionConfig(JSON.parse(data.payload));
       if (!configEqual(newConfig, lastConfig)) {
         console.log(
-          `updating config: ${JSON.stringify(newConfig)} from ${JSON.stringify(lastConfig)}`,
+          `updating config: ${JSON.stringify(newConfig)} from ${JSON.stringify(lastConfig)}`
         );
         lastConfig = newConfig;
         session.sessionUpdate({
@@ -174,7 +181,7 @@ async function runMultimodalAgent(
       } else {
         return JSON.stringify({ changed: false });
       }
-    },
+    }
   );
 
   session.on("response_done", (response: openai.realtime.RealtimeResponse) => {
@@ -228,4 +235,11 @@ async function runMultimodalAgent(
   });
 }
 
-cli.runApp(new WorkerOptions({ agent: fileURLToPath(import.meta.url), apiKey, apiSecret,wsURL: livekitHost }));
+cli.runApp(
+  new WorkerOptions({
+    agent: fileURLToPath(import.meta.url),
+    apiKey,
+    apiSecret,
+    wsURL: livekitHost,
+  })
+);
