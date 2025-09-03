@@ -19,9 +19,6 @@ if (!apiKey || !apiSecret) {
   throw new Error("WEBRTC_API_KEY and WEBRTC_API_SECRET must be set");
 }
 
-console.log("livekitHost::", livekitHost);
-console.log("openAIAPIKey::", openAIAPIKey);
-console.log("apiSecret::", apiSecret);
 
 function safeLogConfig(config: SessionConfig): string {
   const safeConfig = { ...config, openaiApiKey: "[REDACTED]" };
