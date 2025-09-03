@@ -8,8 +8,8 @@
     "clean:build": "pnpm clean && pnpm build",
     "lint": "eslint -f unix \"*.ts\"",
     "lint:fix": "eslint --fix -f unix \"*.ts\"",
-    "dev": "pnpm exec tsx index.ts dev",
-    "start": "pnpm exec tsx index.ts start",
+    "dev": "node api.js && pnpm exec tsx index.ts dev",
+    "start": "node api.js && pnpm exec tsx index.ts start",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
     "format:write": "prettier --write \"**/*.{ts,tsx,md,json}\""
   },
